@@ -1,0 +1,36 @@
+{
+  "name": "yatc",
+  "version": "0.0.1",
+  "description": "Yet Another Type Checker for JavaScript",
+  "author": "Fomichev Kirill <fanatid@ya.ru>",
+  "main": "src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:fanatid/yatc.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fanatid/yatc/issues"
+  },
+  "keywords": [
+    "assert",
+    "check",
+    "type",
+    "types",
+    "type-check",
+    "type-checking",
+    "verify"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "chai": "^1.10.0",
+    "grunt": "^0.4.5",
+    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-jscs": "^1.2.0",
+    "grunt-mocha-test": "^0.12.6",
+    "jscs": "^1.10.0",
+    "jscs-jsdoc": "^0.4.0",
+    "jshint-stylish": "^1.0.0",
+    "mocha": "^2.1.0"
+  },
+  "license": "MIT"
+}
