@@ -58,7 +58,7 @@ function maybeConsumeOp(tokens, op) {
 
 /**
  * @param {string[]} tokens
- * @return {{structure: 'array', of: Object}}
+ * @return {Object}
  * @throws {Error}
  */
 function consumeArray(tokens) {
@@ -77,7 +77,7 @@ function consumeArray(tokens) {
 
 /**
  * @param {string[]} tokens
- * @return {{structure: 'tuple', of: Object}}
+ * @return {Object}
  * @throws {Error}
  */
 function consumeTuple(tokens) {
@@ -100,7 +100,7 @@ function consumeTuple(tokens) {
 
 /**
  * @param {string[]} tokens
- * @return {{key: string, value: string}}
+ * @return {Object}
  * @throws {Error}
  */
 function consumeField(tokens) {
@@ -111,7 +111,7 @@ function consumeField(tokens) {
 
 /**
  * @param {string[]} tokens
- * @return {{structure: 'fields', of: Object, subset: boolean}}
+ * @return {Object}
  * @throws {Error}
  */
 function consumeFields(tokens) {
