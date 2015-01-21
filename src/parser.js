@@ -69,7 +69,7 @@ function consumeArray(tokens) {
     throw new Error('Must specify type of Array - eg. [Type], got [] instead.')
   }
 
-  struct.of = consumeType(tokens)
+  struct.of = consumeTypes(tokens)
   consumeOp(tokens, ']')
 
   return struct
@@ -216,14 +216,7 @@ function consumeTypes(tokens) {
   return Object.keys(types).map(function (key) { return types[key] })
 }
 
-/**
- * @param {string} input
- * @return {Object}
- * @throws {Error}
- */
-function typeParser(input) {
+module.exports = function (input) {
   var tokens = input.match(tokenRegex) || []
   return consumeTypes(tokens)
 }
-
-module.exports = typeParser
