@@ -1,10 +1,55 @@
+var _ = require('./util')
+
 var identifierRegex = /[\$\w]+/
 var tokenRegex = /\.\.\.|::|[\$\w]+|\S/g
 
 
 /**
- * @param {string[]} tokens
- * @return {string}
+ * @typedef {string} Token
+ */
+
+/**
+ * @typedef {Token[]} Tokens
+ */
+
+/**
+ * @typedef {Object} SimpleType
+ * @property {string} type Type identifier eg. String, Number
+ */
+
+/**
+ * @typedef {Object} ArrayType
+ * @property {string} structure Always equal `array`
+ * @property {ParsedTypes} of Followed by exactly one `ParsedTypes`
+ */
+
+/**
+ * @typedef {Object} TupleType
+ * @property {string} structure Always equal `tuple`
+ * @property {ParsedTypes[]} of Followed by one or more `ParsedTypes`
+ */
+
+/**
+ * @typedef {Object} FieldsType
+ * @property {string} structure Always equal `fields`
+ * @property {{string: ParsedTypes}} of
+ * @property {boolean} subset Allow etc properties
+ */
+
+/**
+ * @typedef {(SimpleType|ArrayType|TupleType|FieldsType)} ParsedType
+ */
+
+/**
+ * @typedef {ParsedType[]} ParsedTypes
+ */
+
+/**
+ * Throw `Error` if given `tokens` length equal zero
+ *   unless return first `Token`
+ *
+ * @param {Tokens} tokens
+ * @return {Token}
  * @throws {Error}
  */
 function head(tokens) {
@@ -16,8 +61,11 @@ function head(tokens) {
 }
 
 /**
- * @param {string[]} tokens
- * @return {string}
+ * Throw `Error` if first `Token` of given `tokens` is not identifier
+ *   unless pop first `Token` from `tokens` and return it
+ *
+ * @param {Tokens} tokens
+ * @return {Token}
  * @throws {Error}
  */
 function consumeIdent(tokens) {
@@ -29,9 +77,12 @@ function consumeIdent(tokens) {
 }
 
 /**
- * @param {string[]} tokens
- * @param {string} op
- * @return {string}
+ * Throw `error` if first `Token` of given `tokens` not equal given `op`
+ *   unless pop first `Token` from `tokens` and return `op`
+ *
+ * @param {Tokens} tokens
+ * @param {Token} op
+ * @return {Token}
  * @throws {Error}
  */
 function consumeOp(tokens, op) {
@@ -43,10 +94,11 @@ function consumeOp(tokens, op) {
 }
 
 /**
- * @param {string[]} tokens
- * @param {string} op
- * @return {?string}
- * @throws {Error}
+ * As `consumeOp`, but instead throwing `Error` return `null`
+ *
+ * @param {Tokens} tokens
+ * @param {Token} op
+ * @return {?Token}
  */
 function maybeConsumeOp(tokens, op) {
   if (tokens[0] === op) {
@@ -57,8 +109,8 @@ function maybeConsumeOp(tokens, op) {
 }
 
 /**
- * @param {string[]} tokens
- * @return {Object}
+ * @param {Tokens} tokens
+ * @return {ArrayType}
  * @throws {Error}
  */
 function consumeArray(tokens) {
@@ -76,8 +128,8 @@ function consumeArray(tokens) {
 }
 
 /**
- * @param {string[]} tokens
- * @return {Object}
+ * @param {Tokens} tokens
+ * @return {TupleType}
  * @throws {Error}
  */
 function consumeTuple(tokens) {
@@ -99,8 +151,8 @@ function consumeTuple(tokens) {
 }
 
 /**
- * @param {string[]} tokens
- * @return {Object}
+ * @param {Tokens} tokens
+ * @return {{key: string, value: ParsedTypes}}
  * @throws {Error}
  */
 function consumeField(tokens) {
@@ -110,8 +162,8 @@ function consumeField(tokens) {
 }
 
 /**
- * @param {string[]} tokens
- * @return {Object}
+ * @param {Tokens} tokens
+ * @return {FieldsType}
  * @throws {Error}
  */
 function consumeFields(tokens) {
@@ -138,8 +190,8 @@ function consumeFields(tokens) {
 }
 
 /**
- * @param {string[]} tokens
- * @return {?Object}
+ * @param {Tokens} tokens
+ * @return {?(ArrayType|TupleType|FieldsType)}
  * @throws {Error}
  */
 function maybeConsumeStructure(tokens) {
@@ -159,8 +211,8 @@ function maybeConsumeStructure(tokens) {
 }
 
 /**
- * @param {string[]} tokens
- * @return {Object}
+ * @param {Tokens} tokens
+ * @return {ParsedType}
  * @throws {Error}
  */
 function consumeType(tokens) {
@@ -186,8 +238,8 @@ function consumeType(tokens) {
 }
 
 /**
- * @param {string[]} tokens
- * @return {Object}
+ * @param {Tokens} tokens
+ * @return {ParsedTypes}
  * @throws {Error}
  */
 function consumeTypes(tokens) {
@@ -207,7 +259,7 @@ function consumeTypes(tokens) {
 
   do {
     var typeObj = consumeType(tokens)
-    if (typeof types[typeObj.type] === 'undefined') {
+    if (_.isUndefined(types[typeObj.type])) {
       types[typeObj.type] = typeObj
     }
 
@@ -216,7 +268,19 @@ function consumeTypes(tokens) {
   return Object.keys(types).map(function (key) { return types[key] })
 }
 
-module.exports = function (input) {
+/**
+ * @param {string} input
+ * @return {ParsedTypes}
+ * @throws {Error}
+ */
+function parseString(input) {
+  if (input.length === 0) {
+    throw new Error('No type specified.')
+  }
+
   var tokens = input.match(tokenRegex) || []
   return consumeTypes(tokens)
 }
+
+
+module.exports = parseString

@@ -1,0 +1,200 @@
+{
+  "simple": {
+    "src": "Number",
+    "result": [{"type": "Number"}]
+  },
+  "different characters": {
+    "src": "2T_and$",
+    "result": [{"type": "2T_and$"}]
+  },
+  "Maybe": {
+    "simple": {
+      "src": "Maybe Number",
+      "result": [{"type": "Undefined"}, {"type": "Null"}, {"type": "Number"}]
+    },
+    "with undefined": {
+      "src": "Maybe Number|Undefined",
+      "result": [{"type": "Undefined"}, {"type": "Null"}, {"type": "Number"}]
+    },
+    "with null": {
+      "src": "Maybe Number|Null",
+      "result": [{"type": "Undefined"}, {"type": "Null"}, {"type": "Number"}]
+    }
+  },
+  "Wildcard": {
+    "simple": {
+      "src": "*",
+      "result": [{"type": "*"}]
+    },
+    "array of": {
+      "src": "[*]",
+      "result": [{"structure": "array", "of": [{"type": "*"}]}]
+    },
+    "in object": {
+      "src": "{x: *}",
+      "result": [{"structure": "fields", "of": {"x": [{"type": "*"}]}, "subset": false}]
+    },
+    "any type name with property": {
+      "src": "*{a: Number}",
+      "result": [{"type": "*", "structure": "fields", "of": {"a": [{"type": "Number"}]}, "subset": false}]
+    }
+  },
+  "Multiple types": {
+    "one": {
+      "src": "Number",
+      "result": [{"type": "Number"}]
+    },
+    "two": {
+      "src": "Number|String",
+      "result": [{"type": "Number"}, {"type": "String"}]
+    },
+    "two identical": {
+      "src": "Number|Number",
+      "result": [{"type": "Number"}]
+    }
+  },
+  "Optional comment": {
+    "basic": {
+      "src": "x::Number",
+      "result": [{"type": "Number"}]
+    },
+    "multiple": {
+      "src": "x::Number|String",
+      "result": [{"type": "Number"}, {"type": "String"}]
+    },
+    "before structure": {
+      "src": "x::[Number]",
+      "result": [{"structure": "array", "of": [{"type": "Number"}]}]
+    }
+  },
+  "Array structure": {
+    "simple": {
+      "src": "Int16Array[Int]",
+      "result": [{"type": "Int16Array", "structure": "array", "of": [{"type": "Int"}]}]
+    },
+    "nested": {
+      "src": "[[Int]]",
+      "result": [{"structure": "array", "of": [{"structure": "array", "of": [{"type": "Int"}]}]}]
+    }
+  },
+  "Tuple structure": {
+    "single": {
+      "src": "(Number)",
+      "result": [{"structure": "tuple", "of": [[{"type": "Number"}]]}]
+    },
+    "double": {
+      "src": "(Int, Float)",
+      "result": [{"structure": "tuple", "of": [[{"type": "Int"}], [{"type":"Float"}]]}]
+    },
+    "trailing comma": {
+      "src": "(Int, Float,)",
+      "result": [{"structure": "tuple", "of": [[{"type": "Int"}], [{"type":"Float"}]]}]
+    },
+    "nested": {
+      "src": "((Int))",
+      "result": [{"structure": "tuple", "of": [[{"structure": "tuple", "of": [[{"type": "Int"}]]}]]}]
+    },
+    "with type": {
+      "src": "Type(Int, Float)",
+      "result": [{"type": "Type", "structure": "tuple", "of": [[{"type": "Int"}], [{"type":"Float"}]]}]
+    }
+  },
+  "Fields structure, without type": {
+    "simple": {
+      "src": "{a: Number}",
+      "result": [{"structure": "fields", "of": {"a": [{"type": "Number"}]}, "subset": false}]
+    },
+    "trailing comma": {
+      "src": "{a: Number,}",
+      "result": [{"structure": "fields", "of": {"a": [{"type": "Number"}]}, "subset": false}]
+    },
+    "nested": {
+      "src": "{a: {b: String}}",
+      "result": [{"structure": "fields", "of": {"a": [{"structure": "fields", "of": {"b": [{"type": "String"}]}, "subset": false}]}, "subset": false}]
+    },
+    "subset": {
+      "src": "{a: Number, ...}",
+      "result": [{"structure": "fields", "of": {"a": [{"type": "Number"}]}, "subset": true}]
+    },
+    "no fields specified": {
+      "src": "{...}",
+      "result": [{"structure": "fields", "of": {}, "subset": true}]
+    }
+  },
+  "Fields structure, with type": {
+    "simple": {
+      "src": "X{a: Number}",
+      "result": [{"type": "X", "structure": "fields", "of": {"a": [{"type": "Number"}]}, "subset": false}]
+    },
+    "nested": {
+      "src": "X{a: {b: String}}",
+      "result": [{"type": "X", "structure": "fields", "of": {"a": [{"structure": "fields", "of": {"b": [{"type": "String"}]}, "subset": false}]}, "subset": false}]
+    },
+    "subset": {
+      "src": "X{a: Number, ...}",
+      "result": [{"type": "X", "structure": "fields", "of": {"a": [{"type": "Number"}]}, "subset": true}]
+    },
+    "no fields specified": {
+      "src": "X{...}",
+      "result": [{"type": "X", "structure": "fields", "of": {}, "subset": true}]
+    }
+  },
+  "Errors": {
+    "no type specified": {
+      "src": "",
+      "error": "^No type specified.$"
+    },
+    "no comment specified": {
+      "src": " :: Int",
+      "error": "^No comment before comment separator :: found.$"
+    },
+    "array without type": {
+      "src": "[]",
+      "error": "^Must specify type of Array"
+    },
+    "tuple of length 0": {
+      "src": "()",
+      "error": "^Tuple must be of at least length 1"
+    },
+    "unexpected end of input": {
+      "no tokens": {
+        "src": " ",
+        "error": "^Unexpected end of input.$"
+      },
+      "unclosed square bracket": {
+        "src": "[",
+        "error": "^Unexpected end of input.$"
+      },
+      "unclosed squre bracket with type": {
+        "src": "[Int",
+        "error": "^Unexpected end of input.$"
+      },
+      "unclosed bracket": {
+        "src": "{",
+        "error": "^Unexpected end of input.$"
+      },
+      "unclosed bracket with type": {
+        "src": "{X:",
+        "error": "^Unexpected end of input.$"
+      }
+    },
+    "unexpected character": {
+      "other bracket type": {
+        "src": "[}",
+        "error": "^Unexpected character: }$"
+      },
+      "hat": {
+        "src": "^",
+        "error": "^Unexpected character: \\^$"
+      }
+    },
+    "expected op": {
+      "src": "[Int)",
+      "error": "^Expected ], got '\\)'$"
+    },
+    "expected text": {
+      "src": "{:Float}",
+      "error": "^Expected text, got ':' instead.$"
+    }
+  }
+}
