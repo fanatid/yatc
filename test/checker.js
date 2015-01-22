@@ -75,7 +75,7 @@ describe('checker', function () {
     expect(is('Date', new Date('2015-0122'))).to.be.true
   })
 
-  it('Function', function() {
+  it('Function', function () {
     expect(is('Function', function () {})).to.be.true
     expect(is('Function{length: Number}', function () {})).to.be.true
   })
