@@ -2,18 +2,38 @@ var defaultTypes = require('./types')
 var _ = require('./util')
 
 
+/**
+ * @param {*} input
+ * @param {ParsedType} typeObj
+ * @param {CheckedTypes} customTypes
+ * @return {boolean}
+ */
 function checkArray(input, typeObj, customTypes) {
-  return input.every(function (val) {
-    return checkMultiple(val, typeObj.of, customTypes)
+  return input.every(function (item) {
+    return checkMultiple(item, typeObj.of, customTypes)
   })
 }
 
+/**
+ * @param {*} input
+ * @param {ParsedType} typeObj
+ * @param {CheckedTypes} customTypes
+ * @return {boolean}
+ */
 function checkTuple(input, typeObj, customTypes) {
-  return typeObj.of.every(function (typeObj, index) {
+  var isGood = typeObj.of.every(function (typeObj, index) {
     return checkMultiple(input[index], typeObj, customTypes)
   })
+
+  return isGood && input.length <= typeObj.of.length
 }
 
+/**
+ * @param {*} input
+ * @param {ParsedType} typeObj
+ * @param {CheckedTypes} customTypes
+ * @return {boolean}
+ */
 function checkFields(input, typeObj, customTypes) {
   var isGood = Object.keys(typeObj.of).every(function (key) {
     return checkMultiple(input[key], typeObj.of[key], customTypes)
@@ -27,13 +47,13 @@ function checkFields(input, typeObj, customTypes) {
     return true
   }
 
-  return Object.keys(input).length === Object.keys(typeObj.of).length
+  return Object.keys(input).length <= Object.keys(typeObj.of).length
 }
 
 /**
  * @param {*} input
- * @param {Object} typeObj
- * @param {Object} customTypes
+ * @param {ParsedType} typeObj
+ * @param {CheckedTypes} customTypes
  * @return {boolean}
  */
 function checkStructure(input, typeObj, customTypes) {
@@ -42,24 +62,24 @@ function checkStructure(input, typeObj, customTypes) {
   }
 
   switch (typeObj.structure) {
-  case 'fields':
-    return checkFields(input, typeObj, customTypes)
+    case 'fields':
+      return checkFields(input, typeObj, customTypes)
 
-  case 'array':
-    return checkArray(input, typeObj, customTypes)
+    case 'array':
+      return checkArray(input, typeObj, customTypes)
 
-  case 'tuple':
-    return checkTuple(input, typeObj, customTypes)
+    case 'tuple':
+      return checkTuple(input, typeObj, customTypes)
 
-  default:
-    return false
+    default:
+      return false
   }
 }
 
 /**
  * @param {*} input
- * @param {Object} typeObj
- * @param {Object} customTypes
+ * @param {ParsedType} typeObj
+ * @param {CheckedTypes} customTypes
  * @return {boolean}
  */
 function check(input, typeObj, customTypes) {
@@ -83,10 +103,9 @@ function check(input, typeObj, customTypes) {
   }
 
   if (!_.isUndefined(typeObj.structure)) {
-    if (['array', 'tuple'].indexOf(typeObj.structure) !== -1) {
-      if (_.toString.call(input) !== '[object Array]') {
-        return false
-      }
+    var isArrayStruct = ['array', 'tuple'].indexOf(typeObj.structure) !== -1
+    if (isArrayStruct && _.toString.call(input) !== '[object Array]') {
+      return false
     }
 
     return checkStructure(input, typeObj, customTypes)
@@ -95,13 +114,42 @@ function check(input, typeObj, customTypes) {
   throw new Error('No type defined. Input: ' + input + '.')
 }
 
-function checkMultiple(input, parsedType, customTypes) {
-  return parsedType.some(function (typeObj) {
-    return check(input, typeObj, customTypes)
+/**
+ * @param {*} input
+ * @param {ParsedTypes} parsedTypes
+ * @param {CheckedTypes} customTypes
+ */
+function checkMultiple(input, parsedTypes, customTypes) {
+  if (_.toString.call(parsedTypes) !== '[object Array]') {
+    throw new Error('Types must be in an array. Input: ' + input  + '.')
+  }
+
+  return parsedTypes.some(function (parsedType) {
+    return check(input, parsedType, customTypes)
+  })
+}
+
+/**
+ * @param {*} input
+ * @param {ParsedTypes} parsedTypes
+ * @param {CheckedTypes} customTypes
+ */
+function checkInput(input, parsedTypes, customTypes) {
+  return checkMultiple(parsedTypes, input, customTypes || {})
+}
+
+/**
+ * @param {{string: CheckedType}} types
+ */
+function extendDefaultTypes(types) {
+  Object.keys(types).forEach(function (typeName) {
+    defaultTypes[typeName] = types[typeName]
   })
 }
 
 
-module.exports = function (input, parsedType, customTypes) {
-  return checkMultiple(input, parsedType, customTypes || {})
+module.exports = {
+  check: checkInput,
+  types: defaultTypes,
+  extend: extendDefaultTypes
 }

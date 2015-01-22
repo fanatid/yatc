@@ -1,6 +1,25 @@
 var _ = require('./util')
 
 
+/**
+ * @callback CheckedType~validate
+ * @param {*} obj
+ * @return {boolean}
+ */
+
+/**
+ * @typedef {Object} CheckedType
+ * @property {string} typeOf
+ * @property {CheckedType~validate} validate
+ */
+
+/**
+ * @typedef {Object} CheckedTypes
+ * @property {string} CheckedType
+ */
+
+
+/** @todo Add other types */
 module.exports = {
   Number: {
     typeOf: 'Number',
