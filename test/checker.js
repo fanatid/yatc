@@ -3,6 +3,7 @@ var expect = require('chai').expect
 var checker = require('../src/checker')
 var parser = require('../src/parser')
 
+
 function is(type, input, opts) {
   var parsedType = parser(type)
   return checker.check(parsedType, input, opts)
