@@ -6,4 +6,4 @@ node_js:
   - "0.9"
   - "0.10"
   - "0.11"
-script: "grunt jshint jscs coveralls"
+script: "grunt jshint jscs test build coveralls"

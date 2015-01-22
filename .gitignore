@@ -1,4 +1,6 @@
+build
 coverage
 node_modules
 
+test/yatc.js
 npm-debug.log
