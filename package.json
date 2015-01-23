@@ -22,6 +22,7 @@
   ],
   "dependencies": {},
   "devDependencies": {
+    "benchmark": "^1.0.0",
     "chai": "^1.10.0",
     "grunt": "^0.4.5",
     "grunt-browserify": "^3.3.0",
@@ -35,7 +36,8 @@
     "jscs": "^1.10.0",
     "jscs-jsdoc": "^0.4.0",
     "jshint-stylish": "^1.0.0",
-    "mocha": "^2.1.0"
+    "mocha": "^2.1.0",
+    "type-check": "^0.3.1"
   },
   "license": "MIT"
 }
