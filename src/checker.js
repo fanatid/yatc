@@ -1,5 +1,5 @@
+var toString = Object.prototype.toString
 var defaultTypes = require('./types')
-var _ = require('./util')
 
 
 /**
@@ -9,9 +9,13 @@ var _ = require('./util')
  * @return {boolean}
  */
 function checkArray(input, typeObj, customTypes) {
-  return input.every(function (item) {
-    return checkMultiple(item, typeObj.of, customTypes)
-  })
+  for (var i = 0, length = input.length; i < length; ++i) {
+    if (!checkMultiple(input[i], typeObj.of, customTypes)) {
+      return false
+    }
+  }
+
+  return true
 }
 
 /**
@@ -21,11 +25,14 @@ function checkArray(input, typeObj, customTypes) {
  * @return {boolean}
  */
 function checkTuple(input, typeObj, customTypes) {
-  var isGood = typeObj.of.every(function (typeObj, index) {
-    return checkMultiple(input[index], typeObj, customTypes)
-  })
+  var typeOf = typeObj.of
+  for (var i = 0, length = typeOf.length; i < length; ++i) {
+    if (!checkMultiple(input[i], typeOf[i], customTypes)) {
+      return false
+    }
+  }
 
-  return isGood && input.length <= typeObj.of.length
+  return input.length <= length
 }
 
 /**
@@ -35,19 +42,14 @@ function checkTuple(input, typeObj, customTypes) {
  * @return {boolean}
  */
 function checkFields(input, typeObj, customTypes) {
-  var isGood = Object.keys(typeObj.of).every(function (key) {
-    return checkMultiple(input[key], typeObj.of[key], customTypes)
-  })
-
-  if (!isGood) {
-    return false
+  var ofKeys = Object.keys(typeObj.of)
+  for (var i = 0, length = ofKeys.length; i < length; ++i) {
+    if (!checkMultiple(input[ofKeys[i]], typeObj.of[ofKeys[i]], customTypes)) {
+      return false
+    }
   }
 
-  if (typeObj.subset === true) {
-    return true
-  }
-
-  return Object.keys(input).length <= Object.keys(typeObj.of).length
+  return typeObj.subset || Object.keys(input).length <= length
 }
 
 /**
@@ -83,15 +85,15 @@ function checkStructure(input, typeObj, customTypes) {
  * @return {boolean}
  */
 function check(input, typeObj, customTypes) {
-  if (!_.isUndefined(typeObj.type)) {
+  if (typeof typeObj.type !== 'undefined') {
     if (typeObj.type === '*') {
       return true
     }
 
-    var inputType = _.toString.call(input).slice(8, -1)
+    var inputType = toString.call(input).slice(8, -1)
 
     var setting = customTypes[typeObj.type] || defaultTypes[typeObj.type]
-    if (!_.isUndefined(setting)) {
+    if (typeof setting !== 'undefined') {
       return setting.typeOf === inputType && setting.validate(input)
     }
 
@@ -99,12 +101,12 @@ function check(input, typeObj, customTypes) {
       return false
     }
 
-    return _.isUndefined(typeObj.structure) || checkStructure(input, typeObj, customTypes)
+    return typeof typeObj.structure === 'undefined' || checkStructure(input, typeObj, customTypes)
   }
 
-  if (!_.isUndefined(typeObj.structure)) {
+  if (typeof typeObj.structure !== 'undefined') {
     var isArrayStruct = ['array', 'tuple'].indexOf(typeObj.structure) !== -1
-    if (isArrayStruct && _.toString.call(input) !== '[object Array]') {
+    if (isArrayStruct && toString.call(input) !== '[object Array]') {
       return false
     }
 
@@ -120,13 +122,17 @@ function check(input, typeObj, customTypes) {
  * @param {CheckedTypes} customTypes
  */
 function checkMultiple(input, parsedTypes, customTypes) {
-  if (_.toString.call(parsedTypes) !== '[object Array]') {
+  if (toString.call(parsedTypes) !== '[object Array]') {
     throw new Error('Types must be in an array. Input: ' + input  + '.')
   }
 
-  return parsedTypes.some(function (parsedType) {
-    return check(input, parsedType, customTypes)
-  })
+  for (var i = 0, length = parsedTypes.length; i < length; ++i) {
+    if (check(input, parsedTypes[i], customTypes)) {
+      break
+    }
+  }
+
+  return i < length
 }
 
 /**

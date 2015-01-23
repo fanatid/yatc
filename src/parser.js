@@ -1,5 +1,3 @@
-var _ = require('./util')
-
 var identifierRegex = /[\$\w]+/
 var tokenRegex = /\.\.\.|::|[\$\w]+|\S/g
 
@@ -44,6 +42,7 @@ var tokenRegex = /\.\.\.|::|[\$\w]+|\S/g
  * @typedef {ParsedType[]} ParsedTypes
  */
 
+
 /**
  * Throw `Error` if given `tokens` length equal zero
  *   unless return first `Token`
@@ -69,7 +68,7 @@ function head(tokens) {
  * @throws {Error}
  */
 function consumeIdent(tokens) {
-  if (identifierRegex.test(head(tokens))) {
+  if (identifierRegex.test(tokens[0])) {
     return tokens.shift()
   }
 
@@ -86,7 +85,7 @@ function consumeIdent(tokens) {
  * @throws {Error}
  */
 function consumeOp(tokens, op) {
-  if (head(tokens) === op) {
+  if (tokens[0] === op) {
     return tokens.shift()
   }
 
@@ -114,17 +113,15 @@ function maybeConsumeOp(tokens, op) {
  * @throws {Error}
  */
 function consumeArray(tokens) {
-  var struct = {structure: 'array'}
-
   consumeOp(tokens, '[')
-  if (head(tokens) === ']') {
+  if (tokens[0] === ']') {
     throw new Error('Must specify type of Array - eg. [Type], got [] instead.')
   }
 
-  struct.of = consumeTypes(tokens)
+  var types = consumeTypes(tokens)
   consumeOp(tokens, ']')
 
-  return struct
+  return {structure: 'array', of: types}
 }
 
 /**
@@ -133,32 +130,23 @@ function consumeArray(tokens) {
  * @throws {Error}
  */
 function consumeTuple(tokens) {
-  var struct = {structure: 'tuple', of: []}
-
   consumeOp(tokens, '(')
-  if (head(tokens) === ')') {
+  if (tokens[0] === ')') {
     throw new Error('Tuple must be of at least length 1 - eg. (Type), got () instead.')
   }
 
-  do {
-    struct.of.push(consumeTypes(tokens))
+  var types = []
+  for (;;) {
+    types.push(consumeTypes(tokens))
     maybeConsumeOp(tokens, ',')
 
-  } while (head(tokens) !== ')')
+    if (head(tokens) === ')') {
+      break
+    }
+  }
   consumeOp(tokens, ')')
 
-  return struct
-}
-
-/**
- * @param {Tokens} tokens
- * @return {{key: string, value: ParsedTypes}}
- * @throws {Error}
- */
-function consumeField(tokens) {
-  var key = consumeIdent(tokens)
-  consumeOp(tokens, ':')
-  return {key: key, value: consumeTypes(tokens)}
+  return {structure: 'tuple', of: types}
 }
 
 /**
@@ -167,26 +155,30 @@ function consumeField(tokens) {
  * @throws {Error}
  */
 function consumeFields(tokens) {
-  var struct = {structure: 'fields', of: {}, subset: false}
+  var fields = {}
+  var subset = false
 
   consumeOp(tokens, '{')
-  while (true) {
-    if (maybeConsumeOp(tokens, '...') !== null) {
-      struct.subset = true
-      break
-    }
+  if (tokens[0] !== '}') {
+    for (;;) {
+      if (maybeConsumeOp(tokens, '...') !== null) {
+        subset = true
+        break
+      }
 
-    var field = consumeField(tokens)
-    struct.of[field.key] = field.value
+      var key = consumeIdent(tokens)
+      consumeOp(tokens, ':')
+      fields[key] = consumeTypes(tokens)
 
-    maybeConsumeOp(tokens, ',')
-    if (head(tokens) === '}') {
-      break
+      maybeConsumeOp(tokens, ',')
+      if (head(tokens) === '}') {
+        break
+      }
     }
   }
   consumeOp(tokens, '}')
 
-  return struct
+  return {structure: 'fields', of: fields, subset: subset}
 }
 
 /**
@@ -216,7 +208,7 @@ function maybeConsumeStructure(tokens) {
  * @throws {Error}
  */
 function consumeType(tokens) {
-  var token = head(tokens)
+  var token = tokens[0]
   if (token === '*' || identifierRegex.test(token)) {
     var type = token === '*' ? consumeOp(tokens, '*') : consumeIdent(tokens)
 
@@ -243,29 +235,36 @@ function consumeType(tokens) {
  * @throws {Error}
  */
 function consumeTypes(tokens) {
-  if (head(tokens) === '::') {
+  if (tokens[0] === '::') {
     throw new Error('No comment before comment separator :: found.')
   }
 
   if (tokens.length > 1 && tokens[1] === '::') {
-    tokens.splice(0, 2)
-  }
-
-  var types = {}
-  if (head(tokens) === 'Maybe') {
     tokens.shift()
-    types = {Undefined: {type: 'Undefined'}, Null: {type: 'Null'}}
+    tokens.shift()
   }
 
-  do {
+  var types = []
+  var typesDict = {}
+  if (tokens[0] === 'Maybe') {
+    tokens.shift()
+    types = [{type: 'Undefined'}, {type: 'Null'}]
+    typesDict = {Undefined: true, Null: true}
+  }
+
+  for (;;) {
     var typeObj = consumeType(tokens)
-    if (_.isUndefined(types[typeObj.type])) {
-      types[typeObj.type] = typeObj
+    if (typesDict[typeObj.type] !== true) {
+      types.push(typeObj)
+      typesDict[typeObj.type] = true
     }
 
-  } while (maybeConsumeOp(tokens, '|') !== null)
+    if (maybeConsumeOp(tokens, '|') === null) {
+      break
+    }
+  }
 
-  return Object.keys(types).map(function (key) { return types[key] })
+  return types
 }
 
 /**
@@ -279,6 +278,7 @@ function parseString(input) {
   }
 
   var tokens = input.match(tokenRegex) || []
+  head(tokens)
   return consumeTypes(tokens)
 }
 

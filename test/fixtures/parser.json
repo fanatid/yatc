@@ -163,15 +163,15 @@
       },
       "unclosed square bracket": {
         "src": "[",
-        "error": "^Unexpected end of input.$"
+        "error": "^Expected ], got"
       },
       "unclosed squre bracket with type": {
         "src": "[Int",
-        "error": "^Unexpected end of input.$"
+        "error": "^Expected ], got"
       },
       "unclosed bracket": {
         "src": "{",
-        "error": "^Unexpected end of input.$"
+        "error": "^Expected :, got"
       },
       "unclosed bracket with type": {
         "src": "{X:",
