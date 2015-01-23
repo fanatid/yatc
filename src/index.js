@@ -1,11 +1,14 @@
 /**
  * @license
- * Based on <https://github.com/gkz/type-check 0.3.1>
+ * Based on <https://github.com/gkz/type-check>
  * Copyright George Zahariev
  * Available under MIT license <https://raw.github.com/gkz/type-check/master/LICENSE>
  */
 var checker = require('./checker')
 var parser = require('./parser')
+
+var IS_ENABLED = process.env.YATC !== 'DISABLED'
+console.log(process.env.YATC)
 
 
 /**
@@ -26,6 +29,10 @@ function is(type, input, customTypes) {
  * @throws {TypeError}
  */
 function verify(type, input, customTypes) {
+  if (!IS_ENABLED) {
+    return
+  }
+
   if (is(type, input, customTypes) === false) {
     throw new TypeError('Expected \'' + type + '\', got \'' + input + '\'.')
   }
@@ -43,6 +50,10 @@ function create(type) {
   }
 
   function verify(input, customTypes) {
+    if (!IS_ENABLED) {
+      return
+    }
+
     if (is(input, customTypes) === false) {
       throw new TypeError('Expected \'' + type + '\', got \'' + input + '\'.')
     }
@@ -53,6 +64,9 @@ function create(type) {
 
 
 module.exports = {
+  isEnabled: function isEnabled() { return IS_ENABLED },
+  enable: function enable(value) { IS_ENABLED = !!value },
+
   defaultTypes: checker.types,
   extend: checker.extend,
 

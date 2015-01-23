@@ -39,4 +39,13 @@ describe('yatc', function () {
       expect(function () { bool.verify(2) }).to.throw(TypeError)
     })
   })
+
+  it('enable func', function () {
+    function fn() { yatc.verify('Int', '') }
+    expect(fn).to.throw(TypeError)
+    yatc.enable(false)
+    expect(fn).to.not.throw(TypeError)
+    yatc.enable(true)
+    expect(fn).to.throw(TypeError)
+  })
 })
