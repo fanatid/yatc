@@ -20,6 +20,11 @@
     "type-checking",
     "verify"
   ],
+  "files": [
+    "src",
+    "LICENSE",
+    "README.md"
+  ],
   "dependencies": {},
   "devDependencies": {
     "benchmark": "^1.0.0",
