@@ -51,6 +51,7 @@ module.exports = function (grunt) {
       coveralls: {
         src: 'test',
         options: {
+          coverage: true,
           mask: '*.js',
           reporter: 'spec'
         }
@@ -85,12 +86,10 @@ module.exports = function (grunt) {
 
   grunt.loadNpmTasks('grunt-browserify')
   grunt.loadNpmTasks('grunt-contrib-clean')
-  grunt.loadNpmTasks('grunt-contrib-connect')
   grunt.loadNpmTasks('grunt-contrib-jshint')
   grunt.loadNpmTasks('grunt-contrib-uglify')
   grunt.loadNpmTasks('grunt-jscs')
   grunt.loadNpmTasks('grunt-mocha-istanbul')
-  grunt.loadNpmTasks('grunt-mocha-phantomjs')
   grunt.loadNpmTasks('grunt-mocha-test')
 
   grunt.registerTask('build', ['browserify:production', 'uglify:production'])

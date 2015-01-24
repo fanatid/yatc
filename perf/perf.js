@@ -127,7 +127,7 @@ var rawSuites = [
   ['Number|String', ''],
   ['Maybe Number', null],
   ['[Number]', [1, 2]],
-  ['(Int, Float),', [1, 0.1]],
+  ['(Int, Float)', [1, 0.1]],
   ['{a: String}', {a: 'hi'}],
   ['{a: (Number), ...}', {a: [0], b: 0.1}],
   ['[{lat: Float, long: Float}]', [{lat: 15.42, long: 42.15}]],

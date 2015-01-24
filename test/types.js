@@ -9,6 +9,13 @@ describe('types', function () {
     expect(yatc.is('Number', '0')).to.be.false
   })
 
+  it('Infinity', function () {
+    expect(yatc.is('Infinity', 0)).to.be.false
+    expect(yatc.is('Infinity', '')).to.be.false
+    expect(yatc.is('Infinity', 1 / 0)).to.be.true
+    expect(yatc.is('Infinity', -1 / 0)).to.be.true
+  })
+
   it('NaN', function () {
     expect(yatc.is('NaN', parseInt('', 10))).to.be.true
     expect(yatc.is('NaN', parseInt('0', 10))).to.be.false

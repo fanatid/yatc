@@ -32,6 +32,12 @@ module.exports = {
     typeOf: 'Number',
     validate: isNumber
   },
+  Infinity: {
+    typeOf: 'Number',
+    validate: function (obj) {
+      return obj === Number.POSITIVE_INFINITY || obj === Number.NEGATIVE_INFINITY
+    }
+  },
   NaN: {
     typeOf: 'Number',
     validate: function (obj) {

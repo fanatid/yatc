@@ -85,7 +85,7 @@ function checkStructure(input, typeObj, customTypes) {
  * @return {boolean}
  */
 function check(input, typeObj, customTypes) {
-  if (typeof typeObj.type !== 'undefined') {
+  if (!!typeObj.type) {
     if (typeObj.type === '*') {
       return true
     }
@@ -93,7 +93,7 @@ function check(input, typeObj, customTypes) {
     var inputType = toString.call(input).slice(8, -1)
 
     var setting = customTypes[typeObj.type] || defaultTypes[typeObj.type]
-    if (typeof setting !== 'undefined') {
+    if (!!setting) {
       return setting.typeOf === inputType && setting.validate(input)
     }
 
@@ -101,10 +101,10 @@ function check(input, typeObj, customTypes) {
       return false
     }
 
-    return typeof typeObj.structure === 'undefined' || checkStructure(input, typeObj, customTypes)
+    return !typeObj.structure || checkStructure(input, typeObj, customTypes)
   }
 
-  if (typeof typeObj.structure !== 'undefined') {
+  if (!!typeObj.structure) {
     var isArrayStruct = ['array', 'tuple'].indexOf(typeObj.structure) !== -1
     if (isArrayStruct && toString.call(input) !== '[object Array]') {
       return false
