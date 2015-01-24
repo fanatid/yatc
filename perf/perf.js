@@ -93,17 +93,26 @@ Benchmark.extend(Benchmark.Suite.options, {
 function addSuite(benchType, type, input, customTypes) {
   var tcFn, yatcFn
 
-  if (benchType === 'parse') {
-    tcFn = function () { tcParser(type) }
-    yatcFn = function () { yatcParser(type) }
+  switch (benchType) {
+    case 'parse':
+      tcFn = function () { tcParser(type) }
+      yatcFn = function () { yatcParser(type) }
+      break
 
-  } else {
-    var tcType = tcParser(type)
-    tcFn = function () { tcChecker(tcType, customTypes) }
+    case 'check':
+      var tcType = tcParser(type)
+      var yatcType = yatcParser(type)
+      tcFn = function () { tcChecker(tcType, customTypes) }
+      yatcFn = function () { yatcChecker(yatcType, customTypes) }
+      break
 
-    var yatcType = yatcParser(type)
-    yatcFn = function () { yatcChecker(yatcType, customTypes) }
+    case 'parse&check':
+      tcFn = function () { tcChecker(tcParser(type), input, customTypes) }
+      yatcFn = function () { yatcChecker(yatcParser(type), input, customTypes) }
+      break
 
+    default:
+      throw new TypeError('Unknow benchType: ' + benchType)
   }
 
   suites.push(
@@ -113,22 +122,20 @@ function addSuite(benchType, type, input, customTypes) {
   )
 }
 
-addSuite('parse', 'Number')
-addSuite('check', 'Number', 1)
-addSuite('parse', 'Number|String')
-addSuite('check', 'Number|String', '')
-addSuite('parse', 'Maybe Number')
-addSuite('check', 'Maybe Number', null)
-addSuite('parse', '[Number]')
-addSuite('check', '[Number]', [1, 2])
-addSuite('parse', '(Int, Float)')
-addSuite('check', '(Int, Float)', [1, 0.1])
-addSuite('parse', '{a: String}')
-addSuite('check', '{a: String}', {a: 'hi'})
-addSuite('parse', '{a: (Number), ...}')
-addSuite('check', '{a: (Number), ...}', {a: [0], b: 0.1})
-addSuite('parse', '[{lat: Float, long: Float}]')
-addSuite('check', '[{lat: Float, long: Float}]', [{lat: 15.42, long: 42.15}])
+var rawSuites = [
+  ['Number', 1],
+  ['Number|String', ''],
+  ['Maybe Number', null],
+  ['[Number]', [1, 2]],
+  ['(Int, Float),', [1, 0.1]],
+  ['{a: String}', {a: 'hi'}],
+  ['{a: (Number), ...}', {a: [0], b: 0.1}],
+  ['[{lat: Float, long: Float}]', [{lat: 15.42, long: 42.15}]],
+]
+rawSuites.forEach(function (rawSuite) {
+  var args = ['parse&check'].concat(rawSuite)
+  addSuite.apply(null, args)
+})
 
 
 console.log('Make a cup of tea and relax')

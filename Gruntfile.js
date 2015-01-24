@@ -12,13 +12,17 @@ module.exports = function (grunt) {
         }
       },
       test: {
-        src: ['test/*.js', '!test/yatc.js'],
-        dest: 'test/yatc.js'
+        src: ['test/*.js', 'build/yatc.test.js'],
+        dest: 'build/yatc.test.js'
+      },
+      perf: {
+        src: ['perf/perf.js'],
+        dest: 'build/yatc.perf.js'
       }
     },
     clean: {
       builds: {
-        src: ['build', 'test/yatc.js']
+        src: ['build']
       }
     },
     jshint: {
