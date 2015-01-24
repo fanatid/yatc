@@ -1,6 +1,6 @@
 {
   "name": "yatc",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Yet Another Type Checker for JavaScript",
   "author": "Fomichev Kirill <fanatid@ya.ru>",
   "main": "src/index.js",
