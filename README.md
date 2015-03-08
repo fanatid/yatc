@@ -1,8 +1,8 @@
 # yatc
 
-[![build status](https://secure.travis-ci.org/fanatid/yatc.png)](http://travis-ci.org/fanatid/yatc)
-[![Coverage Status](https://coveralls.io/repos/fanatid/yatc/badge.png)](https://coveralls.io/r/fanatid/yatc)
-[![Version](http://img.shields.io/npm/v/yatc.svg)](https://www.npmjs.org/package/yatc)
+[![Version](http://img.shields.io/npm/v/yatc.svg?style=flat-square)](https://www.npmjs.org/package/yatc)
+[![build status](https://img.shields.io/travis/fanatid/yatc.svg?branch=master&style=flat-square)](http://travis-ci.org/fanatid/yatc)
+[![Coverage Status](https://img.shields.io/coveralls/fanatid/yatc.svg?style=flat-square)](https://coveralls.io/r/fanatid/yatc)
 
 Yet another type checker for JavaScript.
 
